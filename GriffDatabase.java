@@ -261,6 +261,27 @@ class GriffDatabase
 
     public static void view(Connection con, Scanner input){
         // View brandName toolName 
+        String viewContents = """
+                SELECT toolName, brandName FROM griff_tool
+                JOIN griff_brand USING (brandID)
+        """;
+
+        try( Statement viewRecords = con.createStatement()) {
+            ResultSet records = viewRecords.executeQuery(viewContents);
+            while (records.next())
+            {
+                int i = 1;
+                String child = records.getString(i);
+                String parent = records.getString(i+1);
+                System.out.println(child + "\t" + parent);
+                i++;
+            }
+            System.out.println(); 
+        }
+        catch(SQLException e){
+            System.out.println("Error creating tables.\n");
+            System.out.println(e.getMessage());
+        }
     }
 
 }//End class GriffDatabase()
