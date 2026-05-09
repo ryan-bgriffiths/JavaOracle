@@ -19,10 +19,11 @@ class GriffDatabase
     private static String griff_tool = """
         CREATE TABLE griff_tool (
             toolID NUMBER PRIMARY KEY,
-            toolName VARCHAR2(30),
+            toolName VARCHAR2(30) NOT NULL,
             brandID NUMBER NOT NULL,
-            CONSTRAINT griff_part_brandID_fk
-            FOREIGN KEY (brandID) REFERENCES griff_brand(brandID))
+            CONSTRAINT griff_tool_brandID_fk
+            FOREIGN KEY (brandID) REFERENCES griff_brand(brandID),
+            CONSTRAINT griff_tool_name_brand_uk UNIQUE (toolName, brandID))
     """; 
 
     private static String griff_brand_brandID_seq = """
@@ -255,7 +256,62 @@ class GriffDatabase
 
     }//End insert()
 
-    public static void delete(Connection con, Scanner input){}
+    public static void delete(Connection con, Scanner input){
+
+        String getBrandID = """
+                SELECT brandID FROM griff_tool WHERE toolName = ?                
+        """;
+
+        String deleteTool = """
+                DELETE FROM griff_tool WHERE toolName = ?
+        """;
+        
+        String countTools = """
+                SELECT COUNT(*) FROM griff_tool WHERE brandID = ?
+        """;
+        
+        String deleteBrand = """
+                DELETE FROM griff_brand WHERE brandID = ?
+        """;
+// TODO: Change to include tool name and brand for delete of singular tool 
+
+        System.out.println("Enter the name of the tool you would like to delete: ");
+        String toolName = input.nextLine();
+
+        try (
+            PreparedStatement ps1 = con.prepareStatement(getBrandID);
+            PreparedStatement ps2 = con.prepareStatement(deleteTool);
+            PreparedStatement ps3 = con.prepareStatement(countTools);
+            PreparedStatement ps4 = con.prepareStatement(deleteBrand)
+        ){
+            ps1.setString(1, toolName);
+            ResultSet rs = ps1.executeQuery();
+
+            if (!rs.next()){
+                System.out.println("Tool not found.");
+                return; 
+            }
+
+            int brandID = rs.getInt("brandID");
+
+            ps2.setString(1, toolName);
+            ps2.executeUpdate();
+            System.out.println("Tool deleted.");
+
+            ps3.setInt(1, brandID);
+            ResultSet count = ps3.executeQuery();
+
+            if (count.next() && count.getInt(1)==0) {
+                ps4.setInt(1, brandID);
+                ps4.executeUpdate();
+                System.out.println("Brand deleted, not tools left.");
+            }
+
+        } catch( SQLException e){
+            System.out.println("Delete Failure.");
+            System.out.println(e.getMessage());
+        }
+    }
 
     public static void update(Connection con, Scanner input){}
 
