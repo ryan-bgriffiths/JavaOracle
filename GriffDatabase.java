@@ -273,6 +273,7 @@ class GriffDatabase
         String deleteBrand = """
                 DELETE FROM griff_brand WHERE brandID = ?
         """;
+        
 // TODO: Change to include tool name and brand for delete of singular tool 
 
         System.out.println("Enter the name of the tool you would like to delete: ");
@@ -313,7 +314,39 @@ class GriffDatabase
         }
     }
 
-    public static void update(Connection con, Scanner input){}
+    public static void update(Connection con, Scanner input){
+
+        String updateBrand = """
+                UPDATE griff_brand SET brandName = ? WHERE brandName = /
+        """;
+
+        System.out.println("What brand would you like to change? ");
+        String oldBrand = input.nextLine();
+
+        System.out.println("What do you want to update it to? ");
+        String newBrand = input.nextLine();
+
+        try (PreparedStatement ps = con.prepareStatement(updateBrand)){
+            ps.setString(1, newBrand);
+            ps.setString(2, oldBrand);
+
+            int amountUpdated = ps.executeUpdate();
+
+            if (amountUpdated > 0)
+            {
+                System.out.println("Brand updated.");
+            }
+            else 
+            {
+                System.out.println("Brand not found.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error updating brand.");
+            System.out.println(e.getMessage());
+        }
+
+    }//End update()
 
     public static void view(Connection con, Scanner input){
         // View brandName toolName 
