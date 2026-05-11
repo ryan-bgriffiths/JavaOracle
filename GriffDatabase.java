@@ -256,6 +256,7 @@ class GriffDatabase
 
     }//End insert()
 
+    //Method to delete tools from griff_tool & brands frin griff_brand if no tools remain
     public static void delete(Connection con, Scanner input){
 
         String getBrandID = """
@@ -273,8 +274,6 @@ class GriffDatabase
         String deleteBrand = """
                 DELETE FROM griff_brand WHERE brandID = ?
         """;
-
-// TODO: Change to include tool name and brand for delete of singular tool 
 
         System.out.println("Enter the name of the tool you would like to delete: ");
         String toolName = input.nextLine();
@@ -312,8 +311,9 @@ class GriffDatabase
             System.out.println("Delete Failure.");
             System.out.println(e.getMessage());
         }
-    }
+    }//End delete()
 
+    //Method to update brand name 
     public static void update(Connection con, Scanner input){
 
         String updateBrand = """
@@ -348,8 +348,9 @@ class GriffDatabase
 
     }//End update()
 
+    //Method to view contents of all tables
     public static void view(Connection con, Scanner input){
-        // View brandName toolName 
+        
         String viewContents = """
                 SELECT toolName, brandName FROM griff_tool
                 JOIN griff_brand USING (brandID)
@@ -371,6 +372,6 @@ class GriffDatabase
             System.out.println("Error creating tables.\n");
             System.out.println(e.getMessage());
         }
-    }
+    }//End view()
 
 }//End class GriffDatabase()
